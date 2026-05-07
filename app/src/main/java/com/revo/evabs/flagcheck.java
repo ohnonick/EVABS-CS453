@@ -24,6 +24,14 @@ import java.io.OutputStreamWriter;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.security.cert.X509Certificate;
+
+import javax.net.ssl.HostnameVerifier;
+import javax.net.ssl.HttpsURLConnection;
+import javax.net.ssl.SSLContext;
+import javax.net.ssl.SSLSession;
+import javax.net.ssl.TrustManager;
+import javax.net.ssl.X509TrustManager;
 
 import static com.revo.evabs.BadComm.CONNECTION_TIMEOUT;
 import static com.revo.evabs.BadComm.READ_TIMEOUT;
@@ -61,7 +69,36 @@ public class flagcheck extends AppCompatActivity {
     public void checkflag(String tosend){
 
         Toast.makeText(getApplicationContext(), tosend, Toast.LENGTH_LONG);
+        trustAllHosts();
         new checktheflag().execute(tosend);
+    }
+
+    // Fixing HTTPS issues just in case -Nicky
+    private static void trustAllHosts() {
+        TrustManager[] trustAllCerts = new TrustManager[]{new X509TrustManager() {
+            public java.security.cert.X509Certificate[] getAcceptedIssuers() {
+                return new java.security.cert.X509Certificate[]{};
+            }
+
+            public void checkClientTrusted(X509Certificate[] chain, String authType) {
+            }
+
+            public void checkServerTrusted(X509Certificate[] chain, String authType) {
+            }
+        }};
+        try {
+            SSLContext sc = SSLContext.getInstance("TLS");
+            sc.init(null, trustAllCerts, new java.security.SecureRandom());
+            HttpsURLConnection.setDefaultSSLSocketFactory(sc.getSocketFactory());
+            HttpsURLConnection.setDefaultHostnameVerifier(new HostnameVerifier() {
+                @Override
+                public boolean verify(String arg0, SSLSession arg1) {
+                    return true;
+                }
+            });
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     class checktheflag extends AsyncTask<String, String, String> {
@@ -75,7 +112,7 @@ public class flagcheck extends AppCompatActivity {
         protected String doInBackground(String... strings) {
             try {
 
-                url = new URL("https://evabsflag.000webhostapp.com/flags.php");
+                url = new URL("https://evabs-challenge10-cs453.onrender.com/flags.php");
 
             } catch (MalformedURLException e) {
                 // TODO Auto-generated catch block

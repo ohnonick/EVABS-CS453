@@ -21,6 +21,14 @@ import java.io.OutputStreamWriter;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.security.cert.X509Certificate;
+
+import javax.net.ssl.HostnameVerifier;
+import javax.net.ssl.HttpsURLConnection;
+import javax.net.ssl.SSLContext;
+import javax.net.ssl.SSLSession;
+import javax.net.ssl.TrustManager;
+import javax.net.ssl.X509TrustManager;
 
 public class BadComm extends AppCompatActivity {
 
@@ -56,8 +64,33 @@ public class BadComm extends AppCompatActivity {
 
 
     public void sendCreds() {
-
+        trustAllHosts();
         new AsyncLogin().execute(GETIT);
+    }
+
+    // Fixing HTTPS issues like crazy -Nicky
+    private static void trustAllHosts() {
+        TrustManager[] trustAllCerts = new TrustManager[]{new X509TrustManager() {
+            public java.security.cert.X509Certificate[] getAcceptedIssuers() {
+                return new java.security.cert.X509Certificate[]{};
+            }
+
+            public void checkClientTrusted(X509Certificate[] chain, String authType) {}
+            public void checkServerTrusted(X509Certificate[] chain, String authType) {}
+        }};
+        try {
+            SSLContext sc = SSLContext.getInstance("TLS");
+            sc.init(null, trustAllCerts, new java.security.SecureRandom());
+            HttpsURLConnection.setDefaultSSLSocketFactory(sc.getSocketFactory());
+            HttpsURLConnection.setDefaultHostnameVerifier(new HostnameVerifier() {
+                @Override
+                public boolean verify(String arg0, SSLSession arg1) {
+                    return true;
+                }
+            });
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
 
@@ -81,11 +114,10 @@ public class BadComm extends AppCompatActivity {
         @Override
         protected String doInBackground(String... params) {
             try {
-
-                url = new URL("https://evabsflag.000webhostapp.com/reboot.php");
-
+                // My new snazzy link -Nicky
+                url = new URL("https://evabs-challenge10-cs453.onrender.com/reboot.php");
             } catch (MalformedURLException e) {
-                // TODO Auto-generated catch block
+                // Ooo a catch -Nicky
                 e.printStackTrace();
                 return "exception";
             }
@@ -116,7 +148,7 @@ public class BadComm extends AppCompatActivity {
                 conn.connect();
 
             } catch (IOException e1) {
-                // TODO Auto-generated catch block
+                // Ooo a catch -Nicky
                 e1.printStackTrace();
                 return "exception";
             }

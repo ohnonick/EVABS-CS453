@@ -1,6 +1,7 @@
 apply plugin: 'com.android.application'
 
 android {
+    namespace 'com.revo.evabs'
     lintOptions {
 
         checkReleaseBuilds false
