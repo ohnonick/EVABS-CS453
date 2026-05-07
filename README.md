@@ -1,3 +1,8 @@
+# Nicky author's notes
+Hello! I updated the app so that challenge 10 and the flag checker work.
+However, the flag checker only works for challenge 10 because I don't have all the flags.
+Please send me any flags you find so I can add more! :D
+
 
 # EVABS (Extremely Vulnerable Android Labs)
 
